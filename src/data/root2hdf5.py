@@ -74,14 +74,14 @@ def npy2h5(h5, N, x_name, x_npy, y_name, y_npy):
             hf[y_name][-y_npy.shape[0]:] = y_npy
     return
 
-for i in range(5):
-    interval = 10000
+for i in range(20):
+    interval = 2500
     start = i*interval
-    X, y = root2npy(root_train_path, N=interval, start=start, interval=1000)
+    X, y = root2npy(root_train_path, N=interval, start=start, interval=10)
     npy2h5(h5_train_path, interval, 'X_train', X, 'y_train', y)
 
-for i in range(4):
-    interval = 10000
+for i in range(20):
+    interval = 2000
     start = i*interval
-    X, y = root2npy(root_test_path, N=interval, start=start, interval=1000)
+    X, y = root2npy(root_test_path, N=interval, start=start, interval=10)
     npy2h5(h5_test_path, interval, 'X_test', X, 'y_test', y)

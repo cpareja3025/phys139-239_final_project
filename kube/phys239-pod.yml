@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hhh-pod-billy12
+  labels:
+    app: hhh
+spec:
+  containers:
+  - name: container
+    image: gitlab-registry.nrp-nautilus.io/jmduarte/hhh:latest
+    command: ["/bin/bash", "-c", "sleep infinity"]
+    resources:
+      limits:
+        memory: 16Gi
+        cpu: "8"
+        nvidia.com/gpu: "1"
+      requests:
+        memory: 8Gi
+        cpu: "4"
+        nvidia.com/gpu: "1"
+    volumeMounts:
+    - mountPath: /phys239-vol
+      name: phys239-vol
+  volumes:
+    - name: phys239-vol
+      persistentVolumeClaim:
+        claimName: phys239-vol
