@@ -151,3 +151,5 @@ for i, (images, labels) in enumerate(train_loader):
     optimizer.step()
 
     print(f'Step [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
+
+    
