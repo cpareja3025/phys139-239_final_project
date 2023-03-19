@@ -5,10 +5,22 @@ import torchvision
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import numpy as np
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, TensorDataset
 
 hep_x_data = torch.randn(1,1, 256, 256)
 hep_y_data = torch.randn(1,1, 256, 256)
+
+N = 320
+epochs = 5
+batch_size = 32
+train_arr_x = np.random.rand(N,2,256,256)
+train_arr_y = np.random.rand(N, 5)
+tensor_x = torch.Tensor(train_arr_x)
+tensor_y = torch.Tensor(train_arr_y)
+dataset = TensorDataset(tensor_x, tensor_y)
+train_loader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True)
+learning_rate = 0.001
+    
 
 class ConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, **kwargs):
@@ -88,20 +100,54 @@ class combineXY(nn.Module):
         self.avg_pooling = nn.AvgPool2d(kernel_size=(6,5))
         self.linear = nn.Linear(2048, 5)
         # self.softmax = nn.Softmax(dim=1)
-    def forward(self, x_data, y_data):
+    def forward(self, data):
+        print(f'data shape: {data.shape}')
+        split = torch.tensor_split(data, 2, dim = 1)
+        x_data = split[0]
+        y_data = split[1]
+        print(f'x data shape: {x_data.shape}')
+        print(f'y data shape: {y_data.shape}')
         x = self.x_model(x_data)
         y = self.y_model(y_data)
+        print(f'x data shape: {x.shape}')
+        print(f'y data shape: {y.shape}')
         concat =  torch.cat([x, y], dim  = 1)
+        print(f'concat data shape: {concat.shape}')
         combined_data = self.final_inception(concat)
         combined_data = self.avg_pooling(combined_data)
+        print(f'output shape after pooling {combined_data.shape}')
         combined_data = combined_data.reshape(combined_data.shape[0],-1)
+        print(f'output after reshape {combined_data.shape}')
         combined_data = self.linear(combined_data)
         # combined_data = self.softmax(combined_data)
         return combined_data
 
 
 combined_model = combineXY()
-output_combined = combined_model(hep_x_data, hep_y_data)
+# output_combined = combined_model(hep_x_data, hep_y_data)
 
-print(f'Final Shape of both x and y models: {output_combined.shape}')
-         
+# print(f'Final Shape of both x and y models: {output_combined.shape}')
+
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
+
+
+n_total_steps = len(train_loader)
+images, labels = next(iter(train_loader))
+outputs = combined_model(images)
+print(outputs.shape)
+
+for i, (images, labels) in enumerate(train_loader):
+    images = images
+    labels = labels
+        # Forward Pass
+    outputs = combined_model(images)
+    loss = criterion(outputs, labels)
+
+        #Backward and optimize
+
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    print(f'Step [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
