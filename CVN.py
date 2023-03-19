@@ -52,17 +52,18 @@ class Inception_Block(nn.Module):
 
           return output_concat
 
-class xy_model(nn.Module):
+class x_model(nn.Module):
     def __init__(self):
-        super(xy_model,self).__init__()
-        self.conv_7x7 = nn.Conv2d(in_channels=1, out_channels=6,  kernel_size=7, stride=2)
+        super(x_model,self).__init__()
+        self.conv_7x7 = nn.Conv2d(in_channels=1, out_channels=64,  kernel_size=7, stride=2)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride = 2)        
         self.lrn_norm = nn.LocalResponseNorm(size=5,  alpha=0.0001, beta=0.75)
-        self.conv_1x1 = nn.Conv2d(in_channels=6, out_channels= 12, kernel_size=1)
-        self.conv3_3x3 = nn.Conv2d(in_channels=12, out_channels=6, kernel_size=3)
-        self.inception3a = Inception_Block(in_channels=6,output_1x1=64, output_1x1_block2=96, output_3x3=128, output_5x5_reduce=16, output_5x5= 32, output_pool=32)
+        self.conv_1x1 = nn.Conv2d(in_channels=64, out_channels= 64, kernel_size=1)
+        self.conv3_3x3 = nn.Conv2d(in_channels=64, out_channels=256, kernel_size=3)
+        self.inception3a = Inception_Block(in_channels=256,output_1x1=64, output_1x1_block2=96, output_3x3=128, output_5x5_reduce=16, output_5x5= 32, output_pool=32)
         self.inception3b = Inception_Block(in_channels=256,output_1x1=64, output_1x1_block2=96, output_3x3=128, output_5x5_reduce=16, output_5x5= 32, output_pool=32)
         self.inception4a = Inception_Block(in_channels=256,output_1x1=64, output_1x1_block2=96, output_3x3=128, output_5x5_reduce=16, output_5x5= 32, output_pool=32)
+        # self.linear = nn.Linear()
         
 
     def forward(self, x):
@@ -80,19 +81,22 @@ class xy_model(nn.Module):
 class combineXY(nn.Module):
     def __init__(self):
         super(combineXY, self).__init__()
-        self.x_model = xy_model()
-        self.y_model = xy_model()
+        self.x_model = x_model()
+        self.y_model = x_model()
         # concatenating both models gives us channels of 512
-        self.final_inception = Inception_Block(in_channels=512,output_1x1=64, output_1x1_block2=96, output_3x3=128, output_5x5_reduce=16, output_5x5= 32, output_pool=32)
+        self.final_inception = Inception_Block(in_channels=512,output_1x1=128, output_1x1_block2=192, output_3x3=256, output_5x5_reduce=32, output_5x5= 64, output_pool=64)
         self.avg_pooling = nn.AvgPool2d(kernel_size=(6,5))
-        # self.softmax = nn.Softmax(dim=2)
+        self.linear = nn.Linear(2048, 5)
+        # self.softmax = nn.Softmax(dim=1)
     def forward(self, x_data, y_data):
         x = self.x_model(x_data)
         y = self.y_model(y_data)
         concat =  torch.cat([x, y], dim  = 1)
         combined_data = self.final_inception(concat)
         combined_data = self.avg_pooling(combined_data)
-        #combined_data = self.softmax(combined_data)
+        combined_data = combined_data.reshape(combined_data.shape[0],-1)
+        combined_data = self.linear(combined_data)
+        # combined_data = self.softmax(combined_data)
         return combined_data
 
 
