@@ -1,22 +1,24 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: hhh-pod-billy12
+  name: hhh-pod-billy13
   labels:
     app: hhh
 spec:
   containers:
   - name: container
-    image: gitlab-registry.nrp-nautilus.io/jmduarte/hhh:latest
+    # image: gitlab-registry.nrp-nautilus.io/jmduarte/hhh:latest
+    # image: jmduarte/hbb_interaction_network
+    image: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/prp
     command: ["/bin/bash", "-c", "sleep infinity"]
     resources:
       limits:
-        memory: 16Gi
+        memory: 32Gi
         cpu: "8"
         nvidia.com/gpu: "1"
       requests:
-        memory: 8Gi
-        cpu: "4"
+        memory: 16Gi
+        cpu: "8"
         nvidia.com/gpu: "1"
     volumeMounts:
     - mountPath: /phys239-vol
@@ -25,3 +27,12 @@ spec:
     - name: phys239-vol
       persistentVolumeClaim:
         claimName: phys239-vol
+  affinity:
+   nodeAffinity:
+     requiredDuringSchedulingIgnoredDuringExecution:
+       nodeSelectorTerms:
+       - matchExpressions:
+         - key: nvidia.com/gpu.product
+           operator: In
+           values:
+           - NVIDIA-GeForce-RTX-3090

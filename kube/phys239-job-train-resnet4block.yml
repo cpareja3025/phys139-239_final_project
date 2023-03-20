@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hhh-job-train-billy
+  labels:
+    jobgroup: hhh-job-train
+spec:
+  template:
+    spec:
+      containers:
+        - name: training
+          image: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/prp
+          command:
+            - "/bin/bash"
+            - "-c"
+            - >
+              cd /phys239-vol/phys139-239_final_project/src/model/ &&
+              python train_resnetblock4.py
+          volumeMounts:
+          - mountPath: /phys239-vol
+            name: phys239-vol
+          resources:
+            limits:
+              memory: 32Gi
+              cpu: "8"
+              nvidia.com/gpu: "1"
+            requests:
+              memory: 16Gi
+              cpu: "4"
+              nvidia.com/gpu: "1"
+      volumes:
+        - name: phys239-vol
+          persistentVolumeClaim:
+            claimName: phys239-vol
+      affinity:
+       nodeAffinity:
+         requiredDuringSchedulingIgnoredDuringExecution:
+           nodeSelectorTerms:
+           - matchExpressions:
+             - key: nvidia.com/gpu.product
+               operator: In
+               values:
+               - NVIDIA-GeForce-RTX-3090
+      restartPolicy: Never
+  backoffLimit: 5
