@@ -180,15 +180,22 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
 
+        _, predicted = torch.max(outputs,1)
+        n_samples = labels.size(0)
+        correct += (predicted == labels).sum().item()
+
         running_loss += loss.item() * images.size(0)
-        correct += (outputs == labels).float().sum()
+        _, predicted = torch.max(outputs,1)
+        n_samples = labels.size(0)
+        correct += (predicted == labels).sum().item()
+        # correct += (outputs == labels).float().sum()
 
     epoch_loss = running_loss / len(train_loader)
     torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_latest.pt")
     if(epoch_loss < best):
         best = epoch_loss
         torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_best.pt")
-    epoch_accuracy = 100.0 * correct / len(dataset_train)
+    epoch_accuracy = 100.0 * correct / n_samples
 
     running_loss = 0.0
     correct = 0.0
