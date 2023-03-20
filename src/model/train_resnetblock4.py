@@ -374,6 +374,7 @@ callbacks = [cb_tb, cb_csv, cb_save_best, cb_save_latest]
 history = resnet50_network.fit(
     x=ds_train, epochs=500,
     validation_data=ds_val,
+    callbacks=callbacks,
     workers=8,
     use_multiprocessing=True
 )
