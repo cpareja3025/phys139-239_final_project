@@ -137,8 +137,8 @@ class combineXY(nn.Module):
         #print(f'output shape after pooling {combined_data.shape}')
         combined_data = combined_data.reshape(combined_data.shape[0],-1)
         #print(f'output after reshape {combined_data.shape}')
-        combined_data = self.linear1(combined_data)
-        combined_data = self.linear2(combined_data)
+        combined_data = nn.ReLU(self.linear1(combined_data))
+        combined_data = nn.ReLU(self.linear2(combined_data))
 
         # combined_data = self.softmax(combined_data)
         return combined_data
@@ -201,7 +201,8 @@ for epoch in range(epochs):
         loss = criterion(outputs, labels)
 
         running_loss += loss.item() * images.size(0)
-        correct += (outputs == labels).float().sum()
+        #correct += (outputs == labels).float().sum()
+        correct += ((labels==outputs > 0.5)).float().sum()
     val_loss = running_loss / len(test_loader)
     val_accuracy = 100.0 * correct / len(dataset_test)
 
