@@ -147,7 +147,7 @@ epochs = 500
 batch_size = 32
 learning_rate = 0.001
 dataset_train = hdf5Dataset("data/hdf5/train_small.h5", "X_train", "y_train")
-dataset_test = hdf5Dataset("data/hdf5/test_small.h5", "X_train", "y_train")
+dataset_test = hdf5Dataset("data/hdf5/test_small.h5", "X_test", "y_test")
 train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=True)
 n_total_steps = len(train_loader)
@@ -201,13 +201,14 @@ for epoch in range(epochs):
         loss = criterion(outputs, labels)
 
         running_loss += loss.item() * images.size(0)
-        #correct += (outputs == labels).float().sum()
-        correct += ((labels==outputs > 0.5)).float().sum()
+        _, predicted = torch.max(outputs,1)
+        n_samples = labels.size(0)
+        correct += (predicted == labels).sum().item()
     val_loss = running_loss / len(test_loader)
-    val_accuracy = 100.0 * correct / len(dataset_test)
+    val_accuracy = 100.0 * correct / n_samples
 
     f = open("csv_logs/cvn.csv", "a")
-    f.write(f"{epoch},{epoch_loss},{epoch_accuracy},{val_loss},{val_accuracy}\n")
+    f.write(f"Epoch {epoch}: Loss = {epoch_loss},train acc = {epoch_accuracy},Val Loss = {val_loss}, Val acc = {val_accuracy}\n")
     f.close()
 
     
