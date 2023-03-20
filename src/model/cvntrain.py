@@ -147,7 +147,9 @@ epochs = 500
 batch_size = 32
 learning_rate = 0.001
 dataset_train = hdf5Dataset("data/hdf5/train_small.h5", "X_train", "y_train")
+dataset_test = hdf5Dataset("data/hdf5/test_small.h5", "X_train", "y_train")
 train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=True)
 n_total_steps = len(train_loader)
 
 
@@ -158,7 +160,7 @@ optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
 best = 100000
 
 f = open("csv_logs/cvn.csv", "w+")
-f.write("epoch,loss,accuracy\n")
+f.write("epoch,loss,accuracy,val_loss,val_acc\n")
 f.close()
 
 for epoch in range(epochs):
@@ -188,8 +190,23 @@ for epoch in range(epochs):
         torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_best.pt")
     epoch_accuracy = 100.0 * correct / len(dataset_train)
 
+    running_loss = 0.0
+    correct = 0.0
+    for i, (images, labels) in enumerate(test_loader):
+        images = images.to(device)
+        labels = labels.to(device)
+        # Forward Pass
+        
+        outputs = combined_model(images[:, :2, :, :])
+        loss = criterion(outputs, labels)
+
+        running_loss += loss.item() * images.size(0)
+        correct += (outputs == labels).float().sum()
+    val_loss = running_loss / len(test_loader)
+    val_accuracy = 100.0 * correct / len(dataset_test)
+
     f = open("csv_logs/cvn.csv", "a")
-    f.write(f"{epoch},{epoch_loss},{epoch_accuracy}\n")
+    f.write(f"{epoch},{epoch_loss},{epoch_accuracy},{val_loss},{val_accuracy}\n")
     f.close()
 
     
