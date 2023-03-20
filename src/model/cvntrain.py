@@ -166,6 +166,7 @@ f.close()
 for epoch in range(epochs):
     running_loss = 0.0
     correct = 0.0
+    n_samples = 0.0
     for i, (images, labels) in enumerate(train_loader):
         images = images.to(device)
         labels = labels.to(device)
@@ -182,8 +183,11 @@ for epoch in range(epochs):
 
         running_loss += loss.item() * images.size(0)
         outputs = torch.softmax(outputs,1)
-        n_samples = labels.size(0)
-        correct += (outputs > 0.5).sum().item()
+        preds = torch.argmax(outputs, dim=1) 
+        truths = torch.argmax(labels, dim=1)
+
+        n_samples += truths.size(0) 
+        correct += (preds == truths).sum().item() 
         # correct += (outputs == labels).float().sum()
 
     epoch_loss = running_loss / len(train_loader)
@@ -195,6 +199,7 @@ for epoch in range(epochs):
 
     running_loss = 0.0
     correct = 0.0
+    n_samples = 0.0
     for i, (images, labels) in enumerate(test_loader):
         images = images.to(device)
         labels = labels.to(device)
@@ -204,8 +209,11 @@ for epoch in range(epochs):
 
         running_loss += loss.item() * images.size(0)
         outputs = torch.softmax(outputs,1)
-        n_samples = labels.size(0)
-        correct += (outputs > 0.5).sum().item()
+        preds = torch.argmax(outputs, dim=1)
+        truths = torch.argmax(labels, dim=1)
+
+        n_samples += labels.size(0)
+        correct += (preds == truths).sum().item()
     val_loss = running_loss / len(test_loader)
     val_accuracy = 100.0 * correct / n_samples
 
