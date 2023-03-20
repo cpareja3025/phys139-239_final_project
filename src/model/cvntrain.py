@@ -92,7 +92,6 @@ class x_model(nn.Module):
         self.inception3a = Inception_Block(in_channels=256,output_1x1=64, output_1x1_block2=96, output_3x3=128, output_5x5_reduce=16, output_5x5= 32, output_pool=32)
         self.inception3b = Inception_Block(in_channels=256,output_1x1=64, output_1x1_block2=96, output_3x3=128, output_5x5_reduce=16, output_5x5= 32, output_pool=32)
         self.inception4a = Inception_Block(in_channels=256,output_1x1=64, output_1x1_block2=96, output_3x3=128, output_5x5_reduce=16, output_5x5= 32, output_pool=32)
-        # self.linear = nn.Linear()
         
 
     def forward(self, x):
@@ -137,12 +136,13 @@ class combineXY(nn.Module):
         #print(f'output shape after pooling {combined_data.shape}')
         combined_data = combined_data.reshape(combined_data.shape[0],-1)
         #print(f'output after reshape {combined_data.shape}')
-        combined_data = nn.ReLU(self.linear1(combined_data))
-        combined_data = nn.ReLU(self.linear2(combined_data))
+        combined_data = F.relu(self.linear1(combined_data))
+        combined_data = F.relu(self.linear2(combined_data))
 
         # combined_data = self.softmax(combined_data)
         return combined_data
     
+
 epochs = 500
 batch_size = 32
 learning_rate = 0.001
@@ -180,14 +180,10 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
 
-        _, predicted = torch.max(outputs,1)
-        n_samples = labels.size(0)
-        correct += (predicted == labels).sum().item()
-
         running_loss += loss.item() * images.size(0)
-        _, predicted = torch.max(outputs,1)
+        outputs = torch.softmax(outputs,1)
         n_samples = labels.size(0)
-        correct += (predicted == labels).sum().item()
+        correct += (outputs > 0.5).sum().item()
         # correct += (outputs == labels).float().sum()
 
     epoch_loss = running_loss / len(train_loader)
@@ -202,30 +198,17 @@ for epoch in range(epochs):
     for i, (images, labels) in enumerate(test_loader):
         images = images.to(device)
         labels = labels.to(device)
-        # Forward Pass
         
         outputs = combined_model(images[:, :2, :, :])
         loss = criterion(outputs, labels)
 
         running_loss += loss.item() * images.size(0)
-        _, predicted = torch.max(outputs,1)
+        outputs = torch.softmax(outputs,1)
         n_samples = labels.size(0)
-        correct += (predicted == labels).sum().item()
+        correct += (outputs > 0.5).sum().item()
     val_loss = running_loss / len(test_loader)
     val_accuracy = 100.0 * correct / n_samples
 
     f = open("csv_logs/cvn.csv", "a")
     f.write(f"Epoch {epoch}: Loss = {epoch_loss},train acc = {epoch_accuracy},Val Loss = {val_loss}, Val acc = {val_accuracy}\n")
     f.close()
-
-    
-    
-
-
-
-        
-#        if (i+1) % 2000 == 0:
-#            print(f'Epoch [{epoch+1}/{epochs}], Step [{i+1}/{n_total_steps}], Loss: {loss.item():.4f}')
-
-
-#print('Finished Training!')   
