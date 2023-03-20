@@ -151,7 +151,7 @@ train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=
 n_total_steps = len(train_loader)
 
 
-combined_model = combineXY()
+combined_model = combineXY().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
 
