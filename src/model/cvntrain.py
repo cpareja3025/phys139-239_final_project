@@ -157,7 +157,7 @@ optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
 
 best = 100000
 
-f = open("csv_logs/cvn.csv", "w")
+f = open("csv_logs/cvn.csv", "w+")
 f.write("epoch,loss,accuracy\n")
 f.close()
 
@@ -182,11 +182,11 @@ for epoch in range(epochs):
         correct += (outputs == labels).float().sum()
 
     epoch_loss = running_loss / len(train_loader)
-    torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_latest_{epoch}.pt")
+    torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_latest.pt")
     if(epoch_loss < best):
         best = epoch_loss
-        torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_best_{epoch}.pt")
-    epoch_accuracy = 100 * correct / len(train_loader)
+        torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_best.pt")
+    epoch_accuracy = 100.0 * correct / len(dataset_train)
 
     f = open("csv_logs/cvn.csv", "a")
     f.write(f"{epoch},{epoch_loss},{epoch_accuracy}\n")
