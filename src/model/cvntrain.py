@@ -144,8 +144,8 @@ class combineXY(nn.Module):
     
 
 epochs = 500
-batch_size = 32
-learning_rate = 0.001
+batch_size = 64
+learning_rate = 0.0005 
 dataset_train = hdf5Dataset("data/hdf5/train_small.h5", "X_train", "y_train")
 dataset_test = hdf5Dataset("data/hdf5/test_small.h5", "X_test", "y_test")
 train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
