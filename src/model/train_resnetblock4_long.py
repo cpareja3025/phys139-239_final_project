@@ -27,7 +27,7 @@ model_dir = project_dir.joinpath('models').joinpath('resnet4block_small_long')
 best_dir = model_dir.joinpath('best')
 latest_dir = model_dir.joinpath('latest')
 
-csv_log_path = project_dir.joinpath('csv_logs').joinpath('resnet4block_small.csv')
+csv_log_path = project_dir.joinpath('csv_logs').joinpath('resnet4block_small_long.csv')
 
 ################################ Start of network construction #########################################
 ################################# conv1  ##################################
@@ -348,7 +348,7 @@ class generator:
             length = len(hf[f"X_{self.mode}"])
         return length
 
-batch_size=128
+batch_size=64
 train_gen = generator(h5_train_path, mode='train', batch_size=batch_size)
 test_gen = generator(h5_test_path, mode='test', batch_size=batch_size)
 
