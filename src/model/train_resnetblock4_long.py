@@ -22,8 +22,8 @@ h5_dir = data_dir.joinpath('hdf5')
 h5_train_path = h5_dir.joinpath('train.h5')
 h5_test_path = h5_dir.joinpath('test.h5')
 
-log_dir = project_dir.joinpath('logs').joinpath('resne4tblock_small_billy')
-model_dir = project_dir.joinpath('models').joinpath('resnet4block_small')
+log_dir = project_dir.joinpath('logs').joinpath('resne4tblock_small_long_billy')
+model_dir = project_dir.joinpath('models').joinpath('resnet4block_small_long')
 best_dir = model_dir.joinpath('best')
 latest_dir = model_dir.joinpath('latest')
 
