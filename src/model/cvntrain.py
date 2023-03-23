@@ -82,16 +82,16 @@ class Inception_Block(nn.Module):
     
 
 class x_model(nn.Module):
-    def __init__(self, paramscale):
+    def __init__(self, param_scale):
         super(x_model,self).__init__()
-        self.conv_7x7 = nn.Conv2d(in_channels=1, out_channels=paramscale*64,  kernel_size=7, stride=2)
+        self.conv_7x7 = nn.Conv2d(in_channels=1, out_channels=param_scale*16,  kernel_size=7, stride=2)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride = 2)        
         self.lrn_norm = nn.LocalResponseNorm(size=5,  alpha=0.0001, beta=0.75)
-        self.conv_1x1 = nn.Conv2d(in_channels=paramscale*64, out_channels= paramscale*64, kernel_size=1)
-        self.conv3_3x3 = nn.Conv2d(in_channels=paramscale*64, out_channels=paramscale*256, kernel_size=3)
-        self.inception3a = Inception_Block(in_channels=paramscale*256,output_1x1=paramscale*64, output_1x1_block2=paramscale*96, output_3x3=paramscale*128, output_5x5_reduce=paramscale*16, output_5x5= paramscale*32, output_pool=paramscale*32)
-        self.inception3b = Inception_Block(in_channels=paramscale*256,output_1x1=paramscale*64, output_1x1_block2=paramscale*96, output_3x3=paramscale*128, output_5x5_reduce=paramscale*16, output_5x5= paramscale*32, output_pool=paramscale*32)
-        self.inception4a = Inception_Block(in_channels=paramscale*256,output_1x1=paramscale*64, output_1x1_block2=paramscale*96, output_3x3=paramscale*128, output_5x5_reduce=paramscale*16, output_5x5= paramscale*32, output_pool=paramscale*32)
+        self.conv_1x1 = nn.Conv2d(in_channels=param_scale*16, out_channels= param_scale*16, kernel_size=1)
+        self.conv3_3x3 = nn.Conv2d(in_channels=param_scale*16, out_channels=param_scale*64, kernel_size=3)
+        self.inception3a = Inception_Block(in_channels=param_scale*64,output_1x1=param_scale*16, output_1x1_block2=param_scale*24, output_3x3=param_scale*32, output_5x5_reduce=param_scale*4, output_5x5= param_scale*8, output_pool=param_scale*8)
+        self.inception3b = Inception_Block(in_channels=param_scale*64,output_1x1=param_scale*16, output_1x1_block2=param_scale*24, output_3x3=param_scale*32, output_5x5_reduce=param_scale*4, output_5x5= param_scale*8, output_pool=param_scale*8)
+        self.inception4a = Inception_Block(in_channels=param_scale*64,output_1x1=param_scale*16, output_1x1_block2=param_scale*24, output_3x3=param_scale*32, output_5x5_reduce=param_scale*4, output_5x5= param_scale*8, output_pool=param_scale*8)
         
 
     def forward(self, x):
@@ -110,13 +110,13 @@ class x_model(nn.Module):
 class combineXY(nn.Module):
     def __init__(self, param_scale):
         super(combineXY, self).__init__()
-        self.x_model = x_model(paramscale=paramscale)
-        self.y_model = x_model(paramscale=paramscale)
+        self.x_model = x_model(param_scale=param_scale)
+        self.y_model = x_model(param_scale=param_scale)
         # concatenating both models gives us channels of 512
-        self.final_inception = Inception_Block(in_channels=paramscale*512,output_1x1=paramscale*128, output_1x1_block2=paramscale*192, output_3x3=paramscale*256, output_5x5_reduce=paramscale*32, output_5x5= paramscale*64, output_pool=paramscale*64)
+        self.final_inception = Inception_Block(in_channels=param_scale*128,output_1x1=param_scale*32, output_1x1_block2=param_scale*48, output_3x3=param_scale*64, output_5x5_reduce=param_scale*8, output_5x5= param_scale*16, output_pool=param_scale*16)
         self.avg_pooling = nn.AvgPool2d(kernel_size=(6,5))
-        self.linear1 = nn.Linear(paramscale*2048, paramscale*2048)
-        self.linear2 = nn.Linear(paramscale*2048, 5)
+        self.linear1 = nn.Linear(param_scale*512, param_scale*512)
+        self.linear2 = nn.Linear(param_scale*512, 5)
         # self.softmax = nn.Softmax(dim=1)
     def forward(self, data):
         #print(f'data shape: {data.shape}')
@@ -142,7 +142,6 @@ class combineXY(nn.Module):
         # combined_data = self.softmax(combined_data)
         return combined_data
     
-
 epochs = 500
 batch_size = 64
 learning_rate = 0.0005 
@@ -151,7 +150,7 @@ dataset_test = hdf5Dataset("data/hdf5/test_small.h5", "X_test", "y_test")
 train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=True)
 n_total_steps = len(train_loader)
-paramscale = 0.5
+paramscale = 4
 
 combined_model = combineXY(param_scale=paramscale).to(device)
 criterion = nn.CrossEntropyLoss()
@@ -220,3 +219,4 @@ for epoch in range(epochs):
     f = open("csv_logs/cvn.csv", "a")
     f.write(f"{epoch},{epoch_loss},{epoch_accuracy},{val_loss},{val_accuracy}\n")
     f.close()
+
