@@ -19,8 +19,8 @@ project_dir = Path.cwd().parent.parent.resolve()
 
 data_dir = project_dir.joinpath('data')
 h5_dir = data_dir.joinpath('hdf5')
-h5_train_path = h5_dir.joinpath('train.h5')
-h5_test_path = h5_dir.joinpath('test.h5')
+h5_train_path = h5_dir.joinpath('train_norm.h5')
+h5_test_path = h5_dir.joinpath('test_norm.h5')
 
 log_dir = project_dir.joinpath('logs').joinpath('resne4tblock_small_long_billy')
 model_dir = project_dir.joinpath('models').joinpath('resnet4block_small_long')
@@ -321,9 +321,6 @@ class generator:
 
         self.indices = None
 
-        self.avg = 0.37174486416699054
-        self.std = 4439.282558540287
-
     def __call__(self):
         self.indices = list(range(self.length))
         random.shuffle(self.indices)
@@ -337,8 +334,6 @@ class generator:
                 sel_labels = hf[f"y_{self.mode}"][sel_indices]
 
                 sel_imgs = sel_imgs.swapaxes(1,-1)
-                sel_imgs = (sel_imgs-self.avg)/self.std
-                #sel_labels = sel_labels.reshape(self.batch_size, 5)
 
                 yield sel_imgs, sel_labels
 
