@@ -145,8 +145,8 @@ class combineXY(nn.Module):
 epochs = 500
 batch_size = 64
 learning_rate = 0.0005 
-dataset_train = hdf5Dataset("data/hdf5/train_small.h5", "X_train", "y_train")
-dataset_test = hdf5Dataset("data/hdf5/test_small.h5", "X_test", "y_test")
+dataset_train = hdf5Dataset("/home/cpareja/teams/group-8/phys139-239_final_project/data/hdf5/train_norm.h5", "X_train", "y_train")
+dataset_test = hdf5Dataset("/home/cpareja/teams/group-8/phys139-239_final_project/data/hdf5/test_norm.h5", "X_test", "y_test")
 train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=True)
 n_total_steps = len(train_loader)
@@ -158,7 +158,7 @@ optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
 
 best = 100000
 
-f = open("csv_logs/cvn.csv", "w+")
+f = open("/home/cpareja/teams/group-8/phys139-239_final_project/csv_logs/CVN_norm.csv", "w+")
 f.write("epoch,loss,accuracy,val_loss,val_acc\n")
 f.close()
 
@@ -172,7 +172,9 @@ for epoch in range(epochs):
         # Forward Pass
         
         outputs = combined_model(images[:, :2, :, :])
-        loss = criterion(outputs, labels.long())
+#         target = target.long()
+#         labels = labels.long 
+        loss = criterion(outputs, torch.max(labels, 1)[1])
 
         #Backward and optimize
 
@@ -188,13 +190,15 @@ for epoch in range(epochs):
         n_samples += truths.size(0) 
         correct += (preds == truths).sum().item() 
         # correct += (outputs == labels).float().sum()
+        print(f'{epoch}')
 
     epoch_loss = running_loss / len(train_loader)
-    torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_latest.pt")
+    torch.save(combined_model.state_dict(), f"/home/cpareja/teams/group-8/phys139-239_final_project/models/cvn/cvn_trainsmall_latest.pt")
     if(epoch_loss < best):
         best = epoch_loss
-        torch.save(combined_model.state_dict(), f"models/cvn/cvn_trainsmall_best.pt")
+        torch.save(combined_model.state_dict(), f"/home/cpareja/teams/group-8/phys139-239_final_project/models/cvn/cvn_trainsmall_best.pt")
     epoch_accuracy = 100.0 * correct / n_samples
+    print(f"{epoch},{epoch_loss},{epoch_accuracy}\n")
 
     running_loss = 0.0
     correct = 0.0
@@ -204,7 +208,7 @@ for epoch in range(epochs):
         labels = labels.to(device)
         
         outputs = combined_model(images[:, :2, :, :])
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs, torch.max(labels, 1)[1])
 
         running_loss += loss.item() * images.size(0)
         outputs = torch.softmax(outputs,1)
@@ -216,7 +220,7 @@ for epoch in range(epochs):
     val_loss = running_loss / len(test_loader)
     val_accuracy = 100.0 * correct / n_samples
 
-    f = open("csv_logs/cvn.csv", "a")
+    f = open("/home/cpareja/teams/group-8/phys139-239_final_project/csv_logs/CVN_norm.csv", "a")
     f.write(f"{epoch},{epoch_loss},{epoch_accuracy},{val_loss},{val_accuracy}\n")
     f.close()
 
