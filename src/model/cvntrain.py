@@ -137,7 +137,7 @@ class combineXY(nn.Module):
         combined_data = combined_data.reshape(combined_data.shape[0],-1)
         #print(f'output after reshape {combined_data.shape}')
         combined_data = F.relu(self.linear1(combined_data))
-        combined_data = F.relu(self.linear2(combined_data))
+        combined_data = self.linear2(combined_data)
 
         # combined_data = self.softmax(combined_data)
         return combined_data
@@ -218,5 +218,5 @@ for epoch in range(epochs):
     val_accuracy = 100.0 * correct / n_samples
 
     f = open("csv_logs/cvn.csv", "a")
-    f.write(f"Epoch {epoch}: Loss = {epoch_loss},train acc = {epoch_accuracy},Val Loss = {val_loss}, Val acc = {val_accuracy}\n")
+    f.write(f"{epoch},{epoch_loss},{epoch_accuracy},{val_loss},{val_accuracy}\n")
     f.close()
