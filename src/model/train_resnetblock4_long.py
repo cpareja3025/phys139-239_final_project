@@ -314,6 +314,7 @@ resnet50_network = build_resnet50(loss=loss, optimizer=optimizer, metrics=metric
 class generator:
     def __init__(self, file, mode, batch_size):
         self.file = file
+        self.hf = h5py.File(self.file, 'r')
         self.mode = mode
 
         self.batch_size = batch_size
@@ -325,17 +326,16 @@ class generator:
         self.indices = list(range(self.length))
         random.shuffle(self.indices)
 
-        with h5py.File(self.file, 'r') as hf:
-            for i in range(int(self.length/self.batch_size)-1):
-                sel_indices = [self.indices.pop() for _ in range(self.batch_size)]
-                sel_indices.sort()
+        for i in range(int(self.length/self.batch_size)-1):
+            sel_indices = [self.indices.pop() for _ in range(self.batch_size)]
+            sel_indices.sort()
 
-                sel_imgs = hf[f"X_{self.mode}"][sel_indices]
-                sel_labels = hf[f"y_{self.mode}"][sel_indices]
+            sel_imgs = self.hf[f"X_{self.mode}"][sel_indices]
+            sel_labels = self.hf[f"y_{self.mode}"][sel_indices]
 
-                sel_imgs = sel_imgs.swapaxes(1,-1)
+            sel_imgs = sel_imgs.swapaxes(1,-1)
 
-                yield sel_imgs, sel_labels
+            yield sel_imgs, sel_labels
 
     def compute_length(self):
         length = 0
