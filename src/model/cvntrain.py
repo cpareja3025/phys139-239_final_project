@@ -172,7 +172,7 @@ for epoch in range(epochs):
         # Forward Pass
         
         outputs = combined_model(images[:, :2, :, :])
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs, labels.long())
 
         #Backward and optimize
 
