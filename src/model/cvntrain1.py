@@ -155,10 +155,7 @@ class combineXY(nn.Module):
         return combined_data
 
 paramscale = 1
-
 combined_model = combineXY(param_scale=paramscale).to(device)
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
 
 epochs = 500
 batch_size = 64
