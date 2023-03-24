@@ -227,7 +227,7 @@ class combineXY(nn.Module):
         return combined_data
 
 
-# combined_model = combineXY().to(device)
+combined_model = combineXY().to(device)
 # from torchsummary import summary
 # summary(combined_model, (2, 256, 256))
 
