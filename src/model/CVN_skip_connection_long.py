@@ -242,7 +242,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
 
 from pytorchsummary import summary
-summary(combined_model, input_size=(64, 3, 256, 256))
+summary(combined_model, input_size=(3, 256, 256))
 
 best = 100000
 
