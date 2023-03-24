@@ -13,6 +13,20 @@ from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 import h5py
 
+from pathlib import Path
+proj_dir = Path.cwd().parent.parent
+csv_dir = proj_dir.joinpath('csv_logs').resolve()
+h5_dir = proj_dir.joinpath('data/hdf5').resolve()
+model_dir = proj_dir.joinpath('models/cvn').resolve()
+
+train_path = h5_dir.joinpath('train_norm.h5')
+test_path = h5_dir.joinpath('test_norm.h5')
+log_path = csv_dir.joinpath('ResNet2View_norm.csv')
+best_path = model_dir.joinpath('cvn_skip_trainnorm_best.pt')
+latest_path = model_dir.joinpath('cvn_skip_trainnorm_latest.pt')
+
+
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class hdf5Dataset(Dataset):
@@ -217,8 +231,8 @@ class combineXY(nn.Module):
 epochs = 500
 batch_size = 64
 learning_rate = 0.0005
-dataset_train = hdf5Dataset("../../data/hdf5/train_norm.h5", "X_train", "y_train")
-dataset_test = hdf5Dataset("../../data/hdf5/test_norm.h5", "X_test", "y_test")
+dataset_train = hdf5Dataset(train_path, "X_train", "y_train")
+dataset_test = hdf5Dataset(test_path, "X_test", "y_test")
 train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
 test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=True)
 n_total_steps = len(train_loader)
@@ -229,7 +243,7 @@ optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
 
 best = 100000
 
-f = open("../../csv_logs/ResNet2View_norm.csv", "w+")
+f = open(log_path, "w+")
 f.write("epoch,loss,accuracy,val_loss,val_acc\n")
 f.close()
 
@@ -264,10 +278,10 @@ for epoch in range(epochs):
         print(f'{epoch}')
 
     epoch_loss = running_loss / len(train_loader)
-    torch.save(combined_model.state_dict(), f"../../models/cvn/cvn_trainsmall_latest.pt")
+    torch.save(combined_model.state_dict(), latest_path)
     if(epoch_loss < best):
         best = epoch_loss
-        torch.save(combined_model.state_dict(), f"../../models/cvn/cvn_trainsmall_best.pt")
+        torch.save(combined_model.state_dict(), best_path)
     epoch_accuracy = 100.0 * correct / n_samples
     print(f"{epoch},{epoch_loss},{epoch_accuracy}\n")
 
@@ -291,6 +305,6 @@ for epoch in range(epochs):
     val_loss = running_loss / len(test_loader)
     val_accuracy = 100.0 * correct / n_samples
 
-    f = open("../../csv_logs/ResNet2View_norm.csv", "a")
+    f = open(log_path, "a")
     f.write(f"{epoch},{epoch_loss},{epoch_accuracy},{val_loss},{val_accuracy}\n")
     f.close()
