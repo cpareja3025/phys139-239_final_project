@@ -34,7 +34,7 @@ csv_log_path = project_dir.joinpath('csv_logs').joinpath('resnet4block_small_lon
 resnet50_conv1_input = Input(shape=( 256, 256, 3), name='conv1_input' )
 
 x = Conv2D(
-    64, kernel_size=7, strides=2, activation='relu',
+    32, kernel_size=7, strides=2, activation='relu',
     padding='same', kernel_constraint=keras.constraints.max_norm(2.)
 )(resnet50_conv1_input)
 
@@ -54,16 +54,16 @@ resnet50_conv1 = Model(
 ################################# conv2  ##################################
 # First Block of conv2
 
-resnet50_conv2_first_block_input = Input(shape=(64,64,64), name='conv2_first_block_input' )
-x = Conv2D( 64, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv2_first_block_input)
+resnet50_conv2_first_block_input = Input(shape=(64,64,32), name='conv2_first_block_input' )
+x = Conv2D( 32, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv2_first_block_input)
 x = BatchNormalization()(x)
-x = Conv2D( 64, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 32, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
-x = Conv2D( 256, kernel_size=1, strides=1, padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 128, kernel_size=1, strides=1, padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
 
 shortcut = Conv2D(
-    256, kernel_size=1, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.)
+    128, kernel_size=1, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.)
 )(resnet50_conv2_first_block_input)
 shortcut = BatchNormalization()(shortcut)
 x = Add()([x, shortcut])
@@ -78,12 +78,12 @@ resnet50_conv2_first_block = Model(
 
 
 # Identity Block of conv2
-resnet50_conv2_identity_block_input = Input(shape=(64,64,256), name='conv2_identity_block_input' )
-x = Conv2D( 64, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv2_identity_block_input)
+resnet50_conv2_identity_block_input = Input(shape=(64,64,128), name='conv2_identity_block_input' )
+x = Conv2D( 32, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv2_identity_block_input)
 x = BatchNormalization()(x)
-x = Conv2D( 64, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 32, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
-x = Conv2D( 256, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 128, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
 
 x = Add()([x, resnet50_conv2_identity_block_input ])
@@ -98,7 +98,7 @@ resnet50_conv2_identity_block = Model(
 
 
 # Combining the 2 types of blocks
-resnet50_conv2_input = Input(shape=(64,64,64), name='resnet50_conv2_input')
+resnet50_conv2_input = Input(shape=(64,64,32), name='resnet50_conv2_input')
 
 x = resnet50_conv2_first_block(resnet50_conv2_input)
 # x = resnet50_conv2_identity_block(resnet50_conv2_input)
@@ -115,15 +115,15 @@ resnet50_conv2 = Model(
 ################################# conv3  ##################################
 # First Block of conv3
 
-resnet50_conv3_first_block_input = Input(shape=(64,64,256), name='conv3_first_block_input' )
-x = Conv2D( 128, kernel_size=1, strides=2, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv3_first_block_input)
+resnet50_conv3_first_block_input = Input(shape=(64,64,128), name='conv3_first_block_input' )
+x = Conv2D( 64, kernel_size=1, strides=2, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv3_first_block_input)
 x = BatchNormalization()(x)
-x = Conv2D( 128, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 64, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
-x = Conv2D( 512, kernel_size=1, strides=1, padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 256, kernel_size=1, strides=1, padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
 
-shortcut = Conv2D(512, kernel_size=1, strides=2, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv3_first_block_input)
+shortcut = Conv2D(256, kernel_size=1, strides=2, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv3_first_block_input)
 shortcut = BatchNormalization()(shortcut)
 x = Add()([ x, shortcut])
 resnet50_conv3_first_block_output = ReLU()(x)
@@ -136,12 +136,12 @@ resnet50_conv3_first_block = Model(
 
 
 # Identity Block of conv3
-resnet50_conv3_identity_block_input = Input(shape=(32,32,512), name='conv3_identity_block_input' )
-x = Conv2D( 128, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv3_identity_block_input)
+resnet50_conv3_identity_block_input = Input(shape=(32,32,256), name='conv3_identity_block_input' )
+x = Conv2D( 64, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv3_identity_block_input)
 x = BatchNormalization()(x)
-x = Conv2D( 128, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 64, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
-x = Conv2D( 512, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 256, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
 
 x = Add()([x, resnet50_conv3_identity_block_input ])
@@ -156,7 +156,7 @@ resnet50_conv3_identity_block = Model(
 
 
 # Combining the 2 types of blocks
-resnet50_conv3_input = Input(shape=(64,64,256), name='resnet50_conv3_input' )
+resnet50_conv3_input = Input(shape=(64,64,128), name='resnet50_conv3_input' )
 
 x = resnet50_conv3_first_block(resnet50_conv3_input)
 x = resnet50_conv3_identity_block(x)
@@ -174,15 +174,15 @@ resnet50_conv3 = Model(
 ################################# conv4  ##################################
 # First Block of conv4
 
-resnet50_conv4_first_block_input = Input(shape=(32,32,512), name='conv4_first_block_input' )
-x = Conv2D( 256, kernel_size=1, strides=2, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv4_first_block_input)
+resnet50_conv4_first_block_input = Input(shape=(32,32,256), name='conv4_first_block_input' )
+x = Conv2D( 128, kernel_size=1, strides=2, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv4_first_block_input)
 x = BatchNormalization()(x)
-x = Conv2D( 256, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 128, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
-x = Conv2D( 1024, kernel_size=1, strides=1, padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 512, kernel_size=1, strides=1, padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
 
-shortcut = Conv2D(1024, kernel_size=1, strides=2, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv4_first_block_input)
+shortcut = Conv2D(512, kernel_size=1, strides=2, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv4_first_block_input)
 shortcut = BatchNormalization()(shortcut)
 x = Add()([ x, shortcut])
 resnet50_conv4_first_block_output = ReLU()(x)
@@ -196,12 +196,12 @@ resnet50_conv4_first_block = Model(
 
 
 # Identity Block of conv4
-resnet50_conv4_identity_block_input = Input(shape=(16,16,1024), name='conv4_identity_block_input' )
-x = Conv2D( 256, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv4_identity_block_input)
+resnet50_conv4_identity_block_input = Input(shape=(16,16,512), name='conv4_identity_block_input' )
+x = Conv2D( 128, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(resnet50_conv4_identity_block_input)
 x = BatchNormalization()(x)
-x = Conv2D( 256, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 128, kernel_size=3, strides=1, activation='relu', padding='same', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
-x = Conv2D( 1024, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
+x = Conv2D( 512, kernel_size=1, strides=1, activation='relu', padding='valid', kernel_constraint=keras.constraints.max_norm(2.))(x)
 x = BatchNormalization()(x)
 
 x = Add()([x, resnet50_conv4_identity_block_input ])
@@ -217,7 +217,7 @@ resnet50_conv4_identity_block = Model(
 
 
 # Combining the 2 types of blocks
-resnet50_conv4_input = Input(shape=(32,32,512), name='resnet50_conv4_input' )
+resnet50_conv4_input = Input(shape=(32,32,256), name='resnet50_conv4_input' )
 
 x = resnet50_conv4_first_block(resnet50_conv4_input)
 x = resnet50_conv4_identity_block(x)
@@ -237,7 +237,7 @@ resnet50_conv4 = Model(
 # electron CC / muon CC / tauon CC / Neutral (4 types)
 
 
-resnet50_classifier_input = Input(shape=(16,16,1024), name='classification')
+resnet50_classifier_input = Input(shape=(16,16,512), name='classification')
 x = AveragePooling2D(pool_size=2, padding='same')(resnet50_classifier_input)
 x = Dropout(0.2)(x)
 x = Flatten()(x)
