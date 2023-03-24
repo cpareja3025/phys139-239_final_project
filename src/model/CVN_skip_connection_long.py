@@ -198,7 +198,7 @@ class combineXY(nn.Module):
 
 
         self.avg_pooling = nn.AvgPool2d(kernel_size=(6,5))
-        self.linear = nn.Linear(2048, 5)
+        self.linear = nn.Linear(1024, 5)
         # self.softmax = nn.Softmax(dim=1)
     def forward(self, data):
         print(f'data shape: {data.shape}')
@@ -240,6 +240,9 @@ n_total_steps = len(train_loader)
 combined_model = combineXY().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
+
+from pytorchsummary import summary
+summary(combined_model, input_size=(64, 3, 256, 256))
 
 best = 100000
 
@@ -306,5 +309,6 @@ for epoch in range(epochs):
     val_accuracy = 100.0 * correct / n_samples
 
     f = open(log_path, "a")
+    print(f"{epoch},{epoch_loss},{epoch_accuracy},{val_loss},{val_accuracy}\n")
     f.write(f"{epoch},{epoch_loss},{epoch_accuracy},{val_loss},{val_accuracy}\n")
     f.close()
