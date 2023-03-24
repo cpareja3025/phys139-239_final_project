@@ -134,10 +134,10 @@ class x_model(nn.Module):
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride = 2)
         self.lrn_norm = nn.LocalResponseNorm(size=5,  alpha=0.0001, beta=0.75)
         self.conv_1x1 = nn.Conv2d(in_channels=32, out_channels= 32, kernel_size=1)
-        self.conv3_3x3 = nn.Conv2d(in_channels=32, out_channels=128, kernel_size=3)
+        self.conv3_3x3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
 
 
-        self.fake_inception = Skip_Connection_Block( in_channels = 128 )
+        self.fake_inception = Skip_Connection_Block( in_channels = 64 )
 
         # Shape here ....
         # self.inception3a = Inception_Block(
@@ -194,11 +194,11 @@ class combineXY(nn.Module):
         #     output_3x3=256, output_5x5_reduce=32, output_5x5= 64, output_pool=64
         # )
 
-        self.final_fake_inception = Skip_Connection_Block( in_channels = 256 )
+        self.final_fake_inception = Skip_Connection_Block( in_channels = 128 )
 
 
         self.avg_pooling = nn.AvgPool2d(kernel_size=(6,5))
-        self.linear = nn.Linear(1024, 5)
+        self.linear = nn.Linear(512, 5)
         # self.softmax = nn.Softmax(dim=1)
     def forward(self, data):
         print(f'data shape: {data.shape}')
@@ -227,6 +227,9 @@ class combineXY(nn.Module):
         return combined_data
 
 
+combined_model = combineXY().to(device)
+from torchsummary import summary
+summary(combined_model, (2, 256, 256))
 
 epochs = 500
 batch_size = 64
@@ -237,12 +240,8 @@ train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=
 test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=True)
 n_total_steps = len(train_loader)
 
-combined_model = combineXY().to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(combined_model.parameters(), lr=learning_rate)
-
-from pytorchsummary import summary
-summary(combined_model, input_size=(3, 256, 256))
 
 best = 100000
 
