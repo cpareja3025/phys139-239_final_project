@@ -154,14 +154,6 @@ class combineXY(nn.Module):
         # combined_data = self.softmax(combined_data)
         return combined_data
 
-epochs = 500
-batch_size = 64
-learning_rate = 0.0005
-dataset_train = hdf5Dataset("/home/cpareja/teams/group-8/phys139-239_final_project/data/hdf5/train_norm.h5", "X_train", "y_train")
-dataset_test = hdf5Dataset("/home/cpareja/teams/group-8/phys139-239_final_project/data/hdf5/test_norm.h5", "X_test", "y_test")
-train_loader = DataLoader(dataset=dataset_train, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(dataset=dataset_test, batch_size=batch_size, shuffle=True)
-n_total_steps = len(train_loader)
 paramscale = 1
 
 combined_model = combineXY(param_scale=paramscale).to(device)
