@@ -14,7 +14,7 @@ from torch.utils.data import Dataset
 import h5py
 
 from pathlib import Path
-proj_dir = Path.cwd().parent.parent
+proj_dir = Path.cwd()
 csv_dir = proj_dir.joinpath('csv_logs').resolve()
 h5_dir = proj_dir.joinpath('data/hdf5').resolve()
 model_dir = proj_dir.joinpath('models/cvn').resolve()
