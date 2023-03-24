@@ -140,20 +140,20 @@ class x_model(nn.Module):
         self.fake_inception = Skip_Connection_Block( in_channels = 128 )
 
         # Shape here ....
-        self.inception3a = Inception_Block(
-            in_channels=128,output_1x1=32, output_1x1_block2=48, output_3x3=54,
-            output_5x5_reduce=8, output_5x5= 16, output_pool=16
-        )
-
-        self.inception3b = Inception_Block(
-            in_channels=128,output_1x1=32, output_1x1_block2=48, output_3x3=54,
-            output_5x5_reduce=8, output_5x5= 16, output_pool=16
-        )
-
-        self.inception4a = Inception_Block(
-            in_channels=128,output_1x1=32, output_1x1_block2=48, output_3x3=54,
-            output_5x5_reduce=8, output_5x5= 16, output_pool=16
-        )
+        # self.inception3a = Inception_Block(
+        #     in_channels=128,output_1x1=32, output_1x1_block2=48, output_3x3=54,
+        #     output_5x5_reduce=8, output_5x5= 16, output_pool=16
+        # )
+        #
+        # self.inception3b = Inception_Block(
+        #     in_channels=128,output_1x1=32, output_1x1_block2=48, output_3x3=54,
+        #     output_5x5_reduce=8, output_5x5= 16, output_pool=16
+        # )
+        #
+        # self.inception4a = Inception_Block(
+        #     in_channels=128,output_1x1=32, output_1x1_block2=48, output_3x3=54,
+        #     output_5x5_reduce=8, output_5x5= 16, output_pool=16
+        # )
 
         # self.linear = nn.Linear()
 
@@ -189,10 +189,10 @@ class combineXY(nn.Module):
         self.y_model = x_model()
         # concatenating both models gives us channels of 512
 
-        self.final_inception = Inception_Block(
-            in_channels=512,output_1x1=128, output_1x1_block2=192,
-            output_3x3=256, output_5x5_reduce=32, output_5x5= 64, output_pool=64
-        )
+        # self.final_inception = Inception_Block(
+        #     in_channels=512,output_1x1=128, output_1x1_block2=192,
+        #     output_3x3=256, output_5x5_reduce=32, output_5x5= 64, output_pool=64
+        # )
 
         self.final_fake_inception = Skip_Connection_Block( in_channels = 256 )
 
