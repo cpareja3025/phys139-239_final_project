@@ -249,6 +249,8 @@ f = open(log_path, "w+")
 f.write("epoch,loss,accuracy,val_loss,val_acc\n")
 f.close()
 
+ValLen = len(train_loader)/4
+
 for epoch in range(epochs):
     running_loss = 0.0
     correct = 0.0
@@ -290,6 +292,7 @@ for epoch in range(epochs):
     running_loss = 0.0
     correct = 0.0
     n_samples = 0.0
+    count = 0
     for i, (images, labels) in enumerate(test_loader):
         images = images.to(device)
         labels = labels.to(device)
@@ -304,6 +307,9 @@ for epoch in range(epochs):
 
         n_samples += labels.size(0)
         correct += (preds == truths).sum().item()
+        if count > ValLen:
+            break
+        print(f'Val{epoch}')
     val_loss = running_loss / len(test_loader)
     val_accuracy = 100.0 * correct / n_samples
 
